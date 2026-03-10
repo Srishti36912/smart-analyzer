@@ -12,12 +12,15 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { ColumnProfileDrawer } from "@/components/ColumnProfileDrawer";
+import type { DatasetColumn } from "@/context/DatasetContext";
 
 const AnalysisPage = () => {
   const { dataset, cleanedDataset } = useDataset();
   const navigate = useNavigate();
   const active = cleanedDataset || dataset;
   const [selectedCol, setSelectedCol] = useState<string>("");
+  const [profileCol, setProfileCol] = useState<DatasetColumn | null>(null);
 
   const numericCols = useMemo(
     () => active?.columns.filter((c) => c.type === "numeric").map((c) => c.name) || [],
