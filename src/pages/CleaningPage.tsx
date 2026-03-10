@@ -19,6 +19,7 @@ const CleaningPage = () => {
     cleaningOptions, setCleaningOptions,
     addHistory,
   } = useDataset();
+  const [profileCol, setProfileCol] = useState<DatasetColumn | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
