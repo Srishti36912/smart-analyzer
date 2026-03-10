@@ -140,7 +140,10 @@ const AnalysisPage = () => {
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Column Summary</CardTitle>
+          <CardTitle className="text-base">
+            Column Summary
+            <span className="ml-2 text-xs font-normal text-muted-foreground">Click a row to profile</span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-auto rounded-md border">
