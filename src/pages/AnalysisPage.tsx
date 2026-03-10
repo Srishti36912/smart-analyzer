@@ -158,7 +158,11 @@ const AnalysisPage = () => {
               </thead>
               <tbody>
                 {active.columns.map((c) => (
-                  <tr key={c.name} className="border-b last:border-0">
+                  <tr
+                    key={c.name}
+                    className="border-b last:border-0 cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => setProfileCol(c)}
+                  >
                     <td className="px-3 py-2 text-xs font-medium text-foreground">{c.name}</td>
                     <td className="px-3 py-2">
                       <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{c.type}</span>
