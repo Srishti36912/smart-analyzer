@@ -132,6 +132,14 @@ const CleaningPage = () => {
           </CardContent>
         </Card>
       )}
+
+      <ColumnProfileDrawer
+        open={!!profileCol}
+        onOpenChange={(open) => !open && setProfileCol(null)}
+        column={profileCol}
+        data={active.data}
+        totalRows={active.rows}
+      />
     </div>
   );
 };
