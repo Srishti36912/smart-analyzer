@@ -121,10 +121,10 @@ const CleaningPage = () => {
         {cleanedDataset && <MetricCard title="After" info={cleanedDataset} />}
       </div>
 
-      {/* Preview table */}
-      {cleanedDataset && (
-        <Card>
-          <CardHeader className="pb-3">
+      {/* Preview table - original or cleaned */}
+      {(() => {
+        const active = cleanedDataset || dataset;
+        return (
             <CardTitle className="text-base">Cleaned Data Preview</CardTitle>
           </CardHeader>
           <CardContent>
