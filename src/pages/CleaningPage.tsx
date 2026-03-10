@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useDataset } from "@/context/DatasetContext";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { applyCleaningOptions } from "@/lib/cleaning-utils";
 import { Sparkles, Loader2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { CleaningOptions } from "@/context/DatasetContext";
+import { ColumnProfileDrawer } from "@/components/ColumnProfileDrawer";
+import type { CleaningOptions, DatasetColumn } from "@/context/DatasetContext";
 
 const CleaningPage = () => {
   const {
@@ -19,6 +21,7 @@ const CleaningPage = () => {
   } = useDataset();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [profileCol, setProfileCol] = useState<DatasetColumn | null>(null);
 
   if (!dataset) {
     return (
@@ -37,7 +40,6 @@ const CleaningPage = () => {
 
   const handleApply = async () => {
     setIsProcessing(true);
-    // Simulate async work
     await new Promise((r) => setTimeout(r, 600));
     const cleaned = applyCleaningOptions(dataset, cleaningOptions);
     setCleanedDataset(cleaned);
@@ -50,7 +52,7 @@ const CleaningPage = () => {
     setCleaningOptions({ ...cleaningOptions, [key]: value });
   };
 
-  
+  const active = cleanedDataset || dataset;
 
   return (
     <div className="space-y-6">
@@ -62,26 +64,14 @@ const CleaningPage = () => {
           <CardTitle className="text-base">Cleaning Options</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          {/* Duplicates */}
           <div className="flex items-center justify-between">
             <Label htmlFor="dup" className="text-sm">Remove duplicate rows</Label>
-            <Switch
-              id="dup"
-              checked={cleaningOptions.removeDuplicates}
-              onCheckedChange={(v) => updateOption("removeDuplicates", v)}
-            />
+            <Switch id="dup" checked={cleaningOptions.removeDuplicates} onCheckedChange={(v) => updateOption("removeDuplicates", v)} />
           </div>
-
-          {/* Missing values */}
           <div className="flex items-center justify-between gap-4">
             <Label className="text-sm shrink-0">Handle missing values</Label>
-            <Select
-              value={cleaningOptions.handleMissing}
-              onValueChange={(v) => updateOption("handleMissing", v as CleaningOptions["handleMissing"])}
-            >
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
+            <Select value={cleaningOptions.handleMissing} onValueChange={(v) => updateOption("handleMissing", v as CleaningOptions["handleMissing"])}>
+              <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Do nothing</SelectItem>
                 <SelectItem value="remove_rows">Remove rows</SelectItem>
@@ -91,23 +81,12 @@ const CleaningPage = () => {
               </SelectContent>
             </Select>
           </div>
-
-          {/* Standardize */}
           <div className="flex items-center justify-between">
             <Label htmlFor="std" className="text-sm">Standardize column names (snake_case)</Label>
-            <Switch
-              id="std"
-              checked={cleaningOptions.standardizeColumns}
-              onCheckedChange={(v) => updateOption("standardizeColumns", v)}
-            />
+            <Switch id="std" checked={cleaningOptions.standardizeColumns} onCheckedChange={(v) => updateOption("standardizeColumns", v)} />
           </div>
-
           <Button onClick={handleApply} disabled={isProcessing} className="w-full">
-            {isProcessing ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</>
-            ) : (
-              <><Sparkles className="mr-2 h-4 w-4" /> Apply Cleaning</>
-            )}
+            {isProcessing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</> : <><Sparkles className="mr-2 h-4 w-4" /> Apply Cleaning</>}
           </Button>
         </CardContent>
       </Card>
@@ -118,17 +97,33 @@ const CleaningPage = () => {
         {cleanedDataset && <MetricCard title="After" info={cleanedDataset} />}
       </div>
 
-      {/* Preview table */}
-      {cleanedDataset && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Cleaned Data Preview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <DataPreviewTable data={cleanedDataset.data.slice(0, 10)} columns={cleanedDataset.columns.map((c) => c.name)} />
-          </CardContent>
-        </Card>
-      )}
+      {/* Data Preview */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">
+            {cleanedDataset ? "Cleaned" : "Original"} Data Preview
+            <span className="ml-2 text-xs font-normal text-muted-foreground">Click a column header to profile it</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataPreviewTable
+            data={active.data.slice(0, 10)}
+            columns={active.columns.map((c) => c.name)}
+            onColumnClick={(name) => {
+              const col = active.columns.find((c) => c.name === name);
+              if (col) setProfileCol(col);
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      <ColumnProfileDrawer
+        open={!!profileCol}
+        onOpenChange={(open) => !open && setProfileCol(null)}
+        column={profileCol}
+        data={active.data}
+        totalRows={active.rows}
+      />
     </div>
   );
 };
@@ -158,14 +153,18 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function DataPreviewTable({ data, columns }: { data: Record<string, unknown>[]; columns: string[] }) {
+function DataPreviewTable({ data, columns, onColumnClick }: { data: Record<string, unknown>[]; columns: string[]; onColumnClick?: (col: string) => void }) {
   return (
     <div className="overflow-auto rounded-md border">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b bg-muted/50">
             {columns.map((col) => (
-              <th key={col} className="px-3 py-2 text-left text-xs font-medium text-muted-foreground whitespace-nowrap">
+              <th
+                key={col}
+                className={`px-3 py-2 text-left text-xs font-medium text-muted-foreground whitespace-nowrap ${onColumnClick ? "cursor-pointer hover:text-foreground hover:bg-muted transition-colors" : ""}`}
+                onClick={() => onColumnClick?.(col)}
+              >
                 {col}
               </th>
             ))}

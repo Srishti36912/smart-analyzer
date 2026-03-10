@@ -12,12 +12,15 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { ColumnProfileDrawer } from "@/components/ColumnProfileDrawer";
+import type { DatasetColumn } from "@/context/DatasetContext";
 
 const AnalysisPage = () => {
   const { dataset, cleanedDataset } = useDataset();
   const navigate = useNavigate();
   const active = cleanedDataset || dataset;
   const [selectedCol, setSelectedCol] = useState<string>("");
+  const [profileCol, setProfileCol] = useState<DatasetColumn | null>(null);
 
   const numericCols = useMemo(
     () => active?.columns.filter((c) => c.type === "numeric").map((c) => c.name) || [],
@@ -137,7 +140,10 @@ const AnalysisPage = () => {
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Column Summary</CardTitle>
+          <CardTitle className="text-base">
+            Column Summary
+            <span className="ml-2 text-xs font-normal text-muted-foreground">Click a row to profile</span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-auto rounded-md border">
@@ -152,7 +158,11 @@ const AnalysisPage = () => {
               </thead>
               <tbody>
                 {active.columns.map((c) => (
-                  <tr key={c.name} className="border-b last:border-0">
+                  <tr
+                    key={c.name}
+                    className="border-b last:border-0 cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => setProfileCol(c)}
+                  >
                     <td className="px-3 py-2 text-xs font-medium text-foreground">{c.name}</td>
                     <td className="px-3 py-2">
                       <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{c.type}</span>
@@ -183,6 +193,14 @@ const AnalysisPage = () => {
           </CardContent>
         </Card>
       )}
+
+      <ColumnProfileDrawer
+        open={!!profileCol}
+        onOpenChange={(open) => !open && setProfileCol(null)}
+        column={profileCol}
+        data={active.data}
+        totalRows={active.rows}
+      />
     </div>
   );
 };
