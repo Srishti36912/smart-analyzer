@@ -125,24 +125,26 @@ const CleaningPage = () => {
       {(() => {
         const active = cleanedDataset || dataset;
         return (
-            <CardTitle className="text-base">Cleaned Data Preview</CardTitle>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">
+              {cleanedDataset ? "Cleaned" : "Original"} Data Preview
+              <span className="ml-2 text-xs font-normal text-muted-foreground">Click a column header to profile it</span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <DataPreviewTable data={cleanedDataset.data.slice(0, 10)} columns={cleanedDataset.columns.map((c) => c.name)} />
+            <DataPreviewTable
+              data={active.data.slice(0, 10)}
+              columns={active.columns.map((c) => c.name)}
+              onColumnClick={(name) => {
+                const col = active.columns.find((c) => c.name === name);
+                if (col) setProfileCol(col);
+              }}
+            />
           </CardContent>
         </Card>
-      )}
-
-      <ColumnProfileDrawer
-        open={!!profileCol}
-        onOpenChange={(open) => !open && setProfileCol(null)}
-        column={profileCol}
-        data={active.data}
-        totalRows={active.rows}
-      />
-    </div>
-  );
-};
+        );
+      })()}
 
 function MetricCard({ title, info }: { title: string; info: { rows: number; missingPercentage: number; duplicateCount: number; columns: { name: string }[] } }) {
   return (
