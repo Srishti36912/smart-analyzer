@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useDataset } from "@/context/DatasetContext";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { applyCleaningOptions } from "@/lib/cleaning-utils";
 import { Sparkles, Loader2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { CleaningOptions } from "@/context/DatasetContext";
+import { ColumnProfileDrawer } from "@/components/ColumnProfileDrawer";
+import type { CleaningOptions, DatasetColumn } from "@/context/DatasetContext";
 
 const CleaningPage = () => {
   const {
