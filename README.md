@@ -1,4 +1,4 @@
-# Insightful Data Hub
+# Smart Analyzer
 
 A professional, dashboard-style analytics platform for data analysts, students, and business users to upload raw datasets, assess data quality, clean issues, and generate insights.
 
