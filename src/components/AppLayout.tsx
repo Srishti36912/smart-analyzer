@@ -30,22 +30,22 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-30 flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-all duration-200",
-          collapsed ? "w-16" : "w-56"
+          "fixed left-0 top-0 z-30 flex h-screen flex-col glass transition-all duration-300",
+          collapsed ? "w-16" : "w-64"
         )}
       >
         {/* Logo */}
-        <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
-          <Database className="h-5 w-5 shrink-0 text-primary" />
-          {!collapsed && (
-            <span className="text-sm font-semibold text-sidebar-foreground truncate">
-              DataClean
-            </span>
-          )}
+        <div className="flex h-16 items-center gap-3 px-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg brand-gradient shadow-lg">
+            <Database className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-sm font-bold tracking-tight text-foreground truncate">
+            Smart Analyzer
+          </span>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 space-y-1 px-2 py-3">
+        <nav className="flex-1 space-y-1 px-3 py-4">
           {navItems.map((item) => {
             const isActive = location.pathname === item.to;
             return (
@@ -53,13 +53,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-sidebar-accent text-sidebar-primary"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
-                <item.icon className="h-4 w-4 shrink-0" />
+                <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-white" : "text-primary")} />
                 {!collapsed && <span className="truncate">{item.label}</span>}
               </NavLink>
             );
@@ -82,8 +82,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <main
         className={cn(
-          "flex-1 transition-all duration-200",
-          collapsed ? "ml-16" : "ml-56"
+          "flex-1 transition-all duration-300",
+          collapsed ? "ml-16" : "ml-64"
         )}
       >
         <div className="mx-auto max-w-7xl p-6">{children}</div>
